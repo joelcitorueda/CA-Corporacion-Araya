@@ -1,0 +1,483 @@
+/* ==========================================================================
+   Corporación Araya - Global Styles
+   Angular 18 Enterprise Design System
+   ========================================================================== */
+
+// -----------------------------------------------------------------------------
+// 1. CSS Custom Properties / Design Tokens
+// -----------------------------------------------------------------------------
+:root {
+  // Brand Colors
+  --navy: #1B3A5C;
+  --navy-light: #244b75;
+  --navy-dark: #10243a;
+  --blue: #2E86DE;
+  --blue-hover: #1e6ec0;
+  --blue-light: #ebf4fc;
+  --gold: #C4963C;
+  --gold-hover: #b08432;
+  --gold-light: #fcf8ee;
+  --dark: #0F172A;
+  --gray: #6B7280;
+  --gray-dark: #374151;
+  --gray-light: #9CA3AF;
+  --light-gray: #F3F4F6;
+  --white: #FFFFFF;
+
+  // Semantic Colors
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8FAFC;
+  --bg-dark: #0F172A;
+  --border-color: #E2E8F0;
+  --border-light: #F1F5F9;
+
+  // Typography
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  // Shadows
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 25px rgba(46, 134, 222, 0.25);
+
+  // Transitions
+  --transition-fast: all 0.15s ease-in-out;
+  --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Layout
+  --container-max-width: 1280px;
+  --header-height: 80px;
+}
+
+// -----------------------------------------------------------------------------
+// 2. Responsive Breakpoints Mixins
+// -----------------------------------------------------------------------------
+$breakpoint-xs: 480px;
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+@mixin mobile {
+  @media (max-width: ($breakpoint-md - 1)) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: $breakpoint-md) and (max-width: ($breakpoint-lg - 1)) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: $breakpoint-lg) {
+    @content;
+  }
+}
+
+@mixin large-desktop {
+  @media (min-width: $breakpoint-xl) {
+    @content;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 3. Reset & Base Styles
+// -----------------------------------------------------------------------------
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-height);
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-family);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--dark);
+  background-color: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+// Locks the page while the entry animation is on screen
+body.preloader-active {
+  overflow: hidden;
+}
+
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition-normal);
+}
+
+// -----------------------------------------------------------------------------
+// 4. Typography Utilities
+// -----------------------------------------------------------------------------
+h1, h2, h3, h4, h5, h6 {
+  color: var(--navy);
+  font-family: var(--font-family);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  letter-spacing: -0.015em;
+}
+
+h3 {
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+}
+
+h4 {
+  font-size: 1.25rem;
+}
+
+h5 {
+  font-size: 1.125rem;
+}
+
+h6 {
+  font-size: 1rem;
+}
+
+p {
+  color: var(--gray);
+  margin-bottom: 1rem;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+// Text Color Helpers
+.text-navy { color: var(--navy) !important; }
+.text-blue { color: var(--blue) !important; }
+.text-gold { color: var(--gold) !important; }
+.text-dark { color: var(--dark) !important; }
+.text-gray { color: var(--gray) !important; }
+.text-white { color: var(--white) !important; }
+
+// Text Alignment Helpers
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+// Font Weight Helpers
+.font-light { font-weight: 300; }
+.font-regular { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+.font-extrabold { font-weight: 800; }
+
+// -----------------------------------------------------------------------------
+// 5. Layout & Container
+// -----------------------------------------------------------------------------
+.container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+
+  @include desktop {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.container-fluid {
+  width: 100%;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+// -----------------------------------------------------------------------------
+// 6. Section Utilities
+// -----------------------------------------------------------------------------
+.section {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+  position: relative;
+
+  @include mobile {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+  }
+}
+
+.section-sm {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+.section-lg {
+  padding-top: 6.5rem;
+  padding-bottom: 6.5rem;
+}
+
+.section-header {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto 3.5rem auto;
+
+  @include mobile {
+    margin-bottom: 2.5rem;
+  }
+}
+
+.section-subtitle {
+  display: inline-block;
+  color: var(--gold);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.75rem;
+}
+
+.section-title {
+  color: var(--navy);
+  margin-bottom: 1rem;
+}
+
+.section-description {
+  color: var(--gray);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+// Background utility classes
+.bg-light { background-color: var(--light-gray); }
+.bg-navy { background-color: var(--navy); color: var(--white); }
+.bg-dark { background-color: var(--dark); color: var(--white); }
+.bg-white { background-color: var(--white); }
+
+// -----------------------------------------------------------------------------
+// 7. Buttons
+// -----------------------------------------------------------------------------
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 0.8125rem 1.75rem;
+  font-size: 0.975rem;
+  font-weight: 600;
+  line-height: 1.4;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: var(--transition-normal);
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 3px;
+  }
+}
+
+.btn-primary {
+  background-color: var(--blue);
+  color: var(--white);
+  border-color: var(--blue);
+
+  &:hover {
+    background-color: var(--blue-hover);
+    border-color: var(--blue-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(46, 134, 222, 0.35);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--navy);
+  border-color: var(--navy);
+
+  &:hover {
+    background-color: var(--navy);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(27, 58, 92, 0.25);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-gold {
+  background-color: var(--gold);
+  color: var(--white);
+  border-color: var(--gold);
+
+  &:hover {
+    background-color: var(--gold-hover);
+    border-color: var(--gold-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(196, 150, 60, 0.35);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-outline-white {
+  background-color: transparent;
+  color: var(--white);
+  border-color: var(--white);
+
+  &:hover {
+    background-color: var(--white);
+    color: var(--navy);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 8. Transition Utilities
+// -----------------------------------------------------------------------------
+.transition-all {
+  transition: var(--transition-normal);
+}
+
+.transition-fast {
+  transition: var(--transition-fast);
+}
+
+.transition-slow {
+  transition: var(--transition-slow);
+}
+
+.transition-colors {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+// -----------------------------------------------------------------------------
+// 9. Keyframes & Animation Utilities
+// -----------------------------------------------------------------------------
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(46, 134, 222, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(46, 134, 222, 0.6);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fadeInLeft {
+  animation: fadeInLeft 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fadeInRight {
+  animation: fadeInRight 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
