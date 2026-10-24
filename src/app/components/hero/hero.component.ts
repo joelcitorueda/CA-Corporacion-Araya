@@ -145,7 +145,7 @@ import { OrbitControls } from 'three-stdlib';
       width: 100%;
       min-height: 100vh;
       min-height: 100dvh;
-      background: linear-gradient(135deg, #0F172A 0%, #132238 45%, #1B3A5C 100%);
+      background: linear-gradient(135deg, #1A1E25 0%, #232932 44%, #2F3742 100%);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -169,20 +169,22 @@ import { OrbitControls } from 'three-stdlib';
     }
 
     .glow-blue {
-      width: 520px;
-      height: 520px;
+      width: 560px;
+      height: 560px;
       background: radial-gradient(circle, #2E86DE 0%, rgba(46, 134, 222, 0) 70%);
-      top: 15%;
-      right: 5%;
+      top: 12%;
+      right: 2%;
+      opacity: 0.2;
     }
 
+    /* Soft neutral light behind the brand block so the blue logo reads clearly */
     .glow-gold {
-      width: 420px;
-      height: 420px;
-      background: radial-gradient(circle, #C4963C 0%, rgba(196, 150, 60, 0) 70%);
-      bottom: 10%;
-      left: 10%;
-      opacity: 0.16;
+      width: 620px;
+      height: 620px;
+      background: radial-gradient(circle, #E8EAEE 0%, rgba(232, 234, 238, 0) 68%);
+      bottom: 18%;
+      left: 2%;
+      opacity: 0.1;
     }
 
     .ambient-grid {

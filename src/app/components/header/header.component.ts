@@ -93,12 +93,12 @@ import { CommonModule } from '@angular/common';
       left: 0;
       width: 100%;
       z-index: 1000;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.75) 0%, rgba(15, 23, 42, 0) 100%);
+      background: linear-gradient(180deg, rgba(18, 21, 26, 0.8) 0%, rgba(18, 21, 26, 0) 100%);
       transition: background-color 0.35s ease, padding 0.35s ease, box-shadow 0.35s ease;
       padding: 1.15rem 0;
 
       &.scrolled {
-        background: #1B3A5C;
+        background: #1B1F26;
         padding: 0.75rem 0;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
       }
@@ -258,7 +258,7 @@ import { CommonModule } from '@angular/common';
       display: none;
       max-height: 0;
       overflow: hidden;
-      background-color: #1B3A5C;
+      background-color: #1B1F26;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
       transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
