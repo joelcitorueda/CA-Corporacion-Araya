@@ -115,7 +115,7 @@ interface LoadStage {
       justify-content: center;
       overflow: hidden;
       background:
-        radial-gradient(circle at 50% 35%, #1B3A5C 0%, #12243a 45%, #0F172A 100%);
+        radial-gradient(circle at 50% 35%, #34343A 0%, #26262A 45%, #1B1B1E 100%);
       font-family: var(--font-family, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
       color: #FFFFFF;
       clip-path: inset(0 0 0 0);

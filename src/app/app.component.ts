@@ -32,5 +32,9 @@ export class AppComponent {
 
   onPreloaderFinished(): void {
     this.showPreloader = false;
+    // Avisa a las secciones que la página ya es visible (enlaces profundos).
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('araya:ready'));
+    }
   }
 }

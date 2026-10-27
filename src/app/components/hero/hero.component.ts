@@ -145,7 +145,7 @@ import { OrbitControls } from 'three-stdlib';
       width: 100%;
       min-height: 100vh;
       min-height: 100dvh;
-      background: linear-gradient(135deg, #1A1E25 0%, #232932 44%, #2F3742 100%);
+      background: linear-gradient(135deg, #1B1B1E 0%, #26262A 45%, #34343A 100%);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -177,14 +177,14 @@ import { OrbitControls } from 'three-stdlib';
       opacity: 0.2;
     }
 
-    /* Soft neutral light behind the brand block so the blue logo reads clearly */
+    /* Soft neutral wash from the top-left so the blue logo reads clearly */
     .glow-gold {
-      width: 620px;
-      height: 620px;
-      background: radial-gradient(circle, #E8EAEE 0%, rgba(232, 234, 238, 0) 68%);
-      bottom: 18%;
-      left: 2%;
-      opacity: 0.1;
+      width: 720px;
+      height: 720px;
+      background: radial-gradient(circle, #FFFFFF 0%, rgba(255, 255, 255, 0) 68%);
+      top: -10%;
+      left: -14%;
+      opacity: 0.08;
     }
 
     .ambient-grid {
@@ -278,12 +278,12 @@ import { OrbitControls } from 'three-stdlib';
       max-width: 380px;
       height: auto;
       object-fit: contain;
-      filter: brightness(1.15) drop-shadow(0 4px 24px rgba(46, 134, 222, 0.45));
+      filter: brightness(1.06) drop-shadow(0 6px 16px rgba(0, 0, 0, 0.45));
       transition: filter 0.3s ease, transform 0.3s ease;
     }
 
     .hero-logo:hover {
-      filter: brightness(1.25) drop-shadow(0 6px 32px rgba(46, 134, 222, 0.65));
+      filter: brightness(1.12) drop-shadow(0 8px 22px rgba(0, 0, 0, 0.55));
       transform: scale(1.02);
     }
 

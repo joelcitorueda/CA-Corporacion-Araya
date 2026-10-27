@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface ProductSpec {
@@ -6,8 +6,22 @@ interface ProductSpec {
   value: string;
 }
 
+interface ProductGift {
+  icon: string;
+  label: string;
+}
+
+interface ProductOffer {
+  badge: string;
+  headline: string;
+  note: string;
+  gifts: ProductGift[];
+}
+
 interface FeaturedProduct {
   id: string;
+  /** Slug corto y legible para el enlace compartible (ej. #DellPro14Ultra). */
+  link: string;
   name: string;
   category: string;
   badge: string;
@@ -16,6 +30,7 @@ interface FeaturedProduct {
   price: string;
   specs: ProductSpec[];
   isExpanded: boolean;
+  offer?: ProductOffer;
 }
 
 @Component({
@@ -40,21 +55,44 @@ interface FeaturedProduct {
         <!-- Products Grid -->
         <div class="products-grid">
           @for (product of products; track product.id) {
-            <article class="product-card">
+            <article
+              class="product-card"
+              [id]="'producto-' + product.id"
+              [class.has-offer]="product.offer"
+            >
               <!-- Availability Badge -->
               <div class="status-badge">
                 <span class="pulse-indicator"></span>
                 <span>{{ product.badge }}</span>
               </div>
 
+              <!-- Offer Ribbon -->
+              @if (product.offer) {
+                <div class="offer-ribbon">
+                  <i class="fas fa-tag"></i>
+                  <span>{{ product.offer.badge }}</span>
+                </div>
+              }
+
               <!-- Product Image Showcase -->
               <div class="image-wrapper">
-                <img
-                  [src]="product.image"
-                  [alt]="product.name"
-                  loading="lazy"
-                  class="product-image"
-                />
+                <picture>
+                  <source
+                    type="image/webp"
+                    [attr.srcset]="getWebpSrcset(product.image)"
+                    sizes="(min-width: 992px) 560px, 92vw"
+                  />
+                  <img
+                    [src]="product.image"
+                    [alt]="product.name"
+                    width="1200"
+                    height="640"
+                    [attr.loading]="product.offer ? 'eager' : 'lazy'"
+                    [attr.fetchpriority]="product.offer ? 'high' : 'auto'"
+                    decoding="async"
+                    class="product-image"
+                  />
+                </picture>
               </div>
 
               <!-- Content Area -->
@@ -74,6 +112,30 @@ interface FeaturedProduct {
                     </div>
                   </div>
                 </div>
+
+                <!-- Offer / Gift Bundle -->
+                @if (product.offer) {
+                  <div class="offer-panel">
+                    <div class="offer-heading">
+                      <span class="offer-gift-icon">
+                        <i class="fas fa-gift"></i>
+                      </span>
+                      <div class="offer-heading-text">
+                        <h4>{{ product.offer.headline }}</h4>
+                        <p>{{ product.offer.note }}</p>
+                      </div>
+                    </div>
+
+                    <ul class="gift-list">
+                      @for (gift of product.offer.gifts; track gift.label) {
+                        <li>
+                          <i [class]="'fas ' + gift.icon"></i>
+                          <span>{{ gift.label }}</span>
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
 
                 <!-- Specs Section -->
                 <div class="specs-wrapper">
@@ -137,11 +199,34 @@ interface FeaturedProduct {
                     <i class="fas fa-file-invoice-dollar"></i>
                     <span>Solicitar Cotización</span>
                   </button>
+
+                  <button
+                    type="button"
+                    class="btn-share"
+                    [class.copied]="copiedId === product.id"
+                    (click)="shareProduct(product)"
+                    [attr.aria-label]="'Compartir enlace de ' + product.name"
+                    [attr.title]="'Copiar enlace directo a ' + product.name"
+                  >
+                    @if (copiedId === product.id) {
+                      <i class="fas fa-check"></i>
+                    } @else {
+                      <i class="fas fa-link"></i>
+                    }
+                  </button>
                 </div>
               </div>
             </article>
           }
         </div>
+
+        <!-- Link copied feedback -->
+        @if (shareMessage) {
+          <div class="share-toast" role="status" aria-live="polite">
+            <i class="fas fa-circle-check"></i>
+            <span>{{ shareMessage }}</span>
+          </div>
+        }
       </div>
     </section>
   `,
@@ -283,6 +368,36 @@ interface FeaturedProduct {
       animation: pulse 1.8s infinite;
     }
 
+    /* Offer Ribbon (top-left) */
+    .offer-ribbon {
+      position: absolute;
+      top: 1.25rem;
+      left: 1.25rem;
+      z-index: 5;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: linear-gradient(135deg, #F2CD7B 0%, #C4963C 55%, #A87B26 100%);
+      color: #1B1F26;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      padding: 0.45rem 0.8rem;
+      border-radius: 9999px;
+      box-shadow: 0 4px 14px rgba(196, 150, 60, 0.4);
+    }
+
+    .product-card.has-offer {
+      border-color: #E3C98F;
+      box-shadow: 0 10px 25px rgba(168, 123, 38, 0.12), 0 1px 3px rgba(15, 23, 42, 0.03);
+    }
+
+    .product-card.is-linked {
+      border-color: #C4963C;
+      box-shadow: 0 0 0 3px rgba(196, 150, 60, 0.35), 0 22px 40px rgba(27, 58, 92, 0.18);
+    }
+
     @keyframes pulse {
       0% {
         transform: scale(0.95);
@@ -309,7 +424,12 @@ interface FeaturedProduct {
       min-height: 320px;
     }
 
+    .image-wrapper picture {
+      display: contents;
+    }
+
     .product-image {
+      display: block;
       width: 100%;
       max-height: 280px;
       height: 280px;
@@ -318,6 +438,80 @@ interface FeaturedProduct {
 
       .product-card:hover & {
         transform: scale(1.03);
+      }
+    }
+
+    /* Gift Bundle Panel */
+    .offer-panel {
+      margin-bottom: 1.5rem;
+      padding: 1rem 1.1rem;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #FFFAF0 0%, #FFF6E4 100%);
+      border: 1px solid #F0DCB0;
+    }
+
+    .offer-heading {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .offer-gift-icon {
+      flex: 0 0 auto;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #C4963C 0%, #A87B26 100%);
+      color: #FFFFFF;
+      font-size: 0.95rem;
+      box-shadow: 0 3px 10px rgba(168, 123, 38, 0.3);
+    }
+
+    .offer-heading-text h4 {
+      margin: 0 0 0.2rem 0;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #7A5A16;
+      line-height: 1.3;
+    }
+
+    .offer-heading-text p {
+      margin: 0;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      color: #8A6A2A;
+    }
+
+    .gift-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.45rem 0.75rem;
+
+      @media (max-width: 380px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .gift-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.79rem;
+      font-weight: 600;
+      color: #5F4A17;
+      line-height: 1.35;
+
+      i {
+        color: #A87B26;
+        font-size: 0.8rem;
+        flex: 0 0 auto;
       }
     }
 
@@ -539,6 +733,36 @@ interface FeaturedProduct {
     /* Card Footer & Blue CTA */
     .card-footer {
       margin-top: auto;
+      display: flex;
+      align-items: stretch;
+      gap: 0.6rem;
+    }
+
+    .btn-share {
+      flex: 0 0 auto;
+      width: 52px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #F1F5F9;
+      color: #2E86DE;
+      font-size: 1.05rem;
+      border: 1px solid #DBE4EF;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: #E8F1FC;
+        border-color: #2E86DE;
+        color: #1B3A5C;
+      }
+
+      &.copied {
+        background: #ECFDF3;
+        border-color: #10B981;
+        color: #059669;
+      }
     }
 
     .btn-quote {
@@ -568,14 +792,63 @@ interface FeaturedProduct {
         font-size: 1.05rem;
       }
     }
+
+    /* Toast feedback */
+    .share-toast {
+      position: fixed;
+      left: 50%;
+      bottom: 1.75rem;
+      transform: translateX(-50%);
+      z-index: 1200;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      max-width: calc(100vw - 2rem);
+      padding: 0.8rem 1.15rem;
+      border-radius: 12px;
+      background: #1B1F26;
+      color: #FFFFFF;
+      font-size: 0.86rem;
+      font-weight: 600;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
+      animation: toast-in 0.25s ease-out;
+
+      i {
+        color: #6EE7B7;
+      }
+    }
+
+    @keyframes toast-in {
+      from {
+        opacity: 0;
+        transform: translate(-50%, 12px);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+    }
   `]
 })
-export class FeaturedProductsComponent {
+export class FeaturedProductsComponent implements AfterViewInit, OnDestroy {
   readonly initialSpecsLimit = 5;
+
+  copiedId: string | null = null;
+  shareMessage = '';
+
+  private toastTimer: ReturnType<typeof setTimeout> | null = null;
+  private highlightTimer: ReturnType<typeof setTimeout> | null = null;
+  private appReady = false;
+
+  private readonly onAppReady = (): void => {
+    this.appReady = true;
+    this.applyDeepLink(false);
+  };
 
   products: FeaturedProduct[] = [
     {
       id: 'dell-pro-14-ultra-7',
+      link: 'DellPro14Ultra',
       name: 'Dell Pro 14 - Intel Ultra 7 255U vPro',
       category: 'GAMA EMPRESARIAL',
       badge: 'DISPONIBLE',
@@ -583,7 +856,22 @@ export class FeaturedProductsComponent {
       stock: '50+ unidades disponibles',
       price: 'Consultar precio',
       isExpanded: false,
+      offer: {
+        badge: 'En oferta',
+        headline: 'Kit de regalo corporativo incluido',
+        note:
+          'Por cada equipo: lector DVD, mochila y teclado + mouse inalámbricos. Más de 50 kits completos disponibles.',
+        gifts: [
+          { icon: 'fa-compact-disc', label: 'Lector y quemador de DVD externo' },
+          { icon: 'fa-briefcase', label: 'Mochila para laptop' },
+          { icon: 'fa-keyboard', label: 'Teclado y mouse inalámbricos' }
+        ]
+      },
       specs: [
+        {
+          label: 'Modelo',
+          value: 'Dell Pro 14'
+        },
         {
           label: 'Procesador',
           value: 'Intel Core Ultra 7 255U (12 núcleos, hasta 5.2 GHz)'
@@ -598,45 +886,62 @@ export class FeaturedProductsComponent {
         },
         {
           label: 'Pantalla',
-          value: '14" FHD+, IPS, Anti-Glare, 300 nits'
+          value: '14" FHD+ (1920 x 1200), IPS, antirreflejo (Anti-Glare), 300 nits'
         },
         {
-          label: 'Sistema Operativo',
-          value: 'Windows 11 Pro'
+          label: 'Gráficos',
+          value: 'Gráficos Intel integrados'
         },
         {
           label: 'Conectividad',
-          value: 'Wi-Fi 6E, Bluetooth 5.3'
+          value: 'Wi-Fi 6E (802.11ax) y Bluetooth 5.3'
         },
         {
           label: 'Cámara',
           value: '1080p Full HD con micrófono dual y obturador de privacidad'
         },
         {
+          label: 'Audio',
+          value: 'Audio de alta definición, micrófonos duales'
+        },
+        {
           label: 'Puertos',
           value:
-            '1x USB 3.2 Type-A 1.ª gen, 1x USB 3.2 Type-A 1.ª gen con PowerShare, 1x Puerto Ethernet RJ-45, 1x HDMI 2.1, 1x USB Type-C Thunderbolt4 con Power Delivery 3.1 y DisplayPort 2.1, 1x USB Type-C con Power Delivery 3.1 y DisplayPort 2.0'
+            '1x USB 3.2 Type-A 1.ª gen, 1x USB 3.2 Type-A 1.ª gen con PowerShare, 1x Ethernet RJ-45 (1 GbE), 1x HDMI 2.1, 1x USB Type-C Thunderbolt con Power Delivery 3.1 y DisplayPort 2.1, 1x USB Type-C con Power Delivery 3.1 y DisplayPort 2.0, 1x conector para auriculares universal, 1x conector de alimentación, 1x conector externo para VGA'
         },
         {
           label: 'Batería',
-          value: '3 Cell, 55 Wh'
-        },
-        {
-          label: 'Peso',
-          value: '1.35 kg'
+          value: '3 celdas, 55 Wh'
         },
         {
           label: 'Teclado',
-          value: 'Español'
+          value: 'Español retroiluminado'
+        },
+        {
+          label: 'Sistema Operativo',
+          value: 'Windows 11 Pro'
+        },
+        {
+          label: 'Dimensiones',
+          value: 'Aprox. 18.5 mm x 313 mm x 224 mm (alto x ancho x profundidad)'
+        },
+        {
+          label: 'Peso',
+          value: 'Aprox. 1.35 kg'
+        },
+        {
+          label: 'Color',
+          value: 'Plata (Silver)'
         },
         {
           label: 'Garantía',
-          value: '1080 días'
+          value: '2 años'
         }
       ]
     },
     {
       id: 'dell-pro-14-ultra-5',
+      link: 'DellPro14',
       name: 'Dell Pro 14 - Ultra 5 235U vPro',
       category: 'GAMA EMPRESARIAL',
       badge: 'DISPONIBLE',
@@ -721,6 +1026,7 @@ export class FeaturedProductsComponent {
     },
     {
       id: 'hp-probook-450-g10',
+      link: 'HPProBook450',
       name: 'HP ProBook 450 G10',
       category: 'GAMA EMPRESARIAL',
       badge: 'DISPONIBLE',
@@ -786,6 +1092,7 @@ export class FeaturedProductsComponent {
     },
     {
       id: 'hp-laserjet-mfp-m428fdw',
+      link: 'HPLaserJetM428fdw',
       name: 'HP LaserJet Pro MFP M428fdw',
       category: 'IMPRESIÓN CORPORATIVA',
       badge: 'DISPONIBLE',
@@ -849,6 +1156,175 @@ export class FeaturedProductsComponent {
       ]
     }
   ];
+
+  ngAfterViewInit(): void {
+    window.addEventListener('araya:ready', this.onAppReady);
+    // Enlace profundo (#DellPro14Ultra): abre la ficha del equipo desplegada.
+    // Se difiere un tick para no mutar el estado durante la verificación de Angular.
+    setTimeout(() => this.applyDeepLink(true), 0);
+    // Respaldo por si el preloader no llega a emitir el evento de "listo".
+    setTimeout(() => {
+      if (!this.appReady) {
+        this.appReady = true;
+        this.applyDeepLink(false);
+      }
+    }, 3400);
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('araya:ready', this.onAppReady);
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    if (this.highlightTimer) clearTimeout(this.highlightTimer);
+  }
+
+  @HostListener('window:hashchange')
+  onHashChange(): void {
+    this.applyDeepLink(false);
+  }
+
+  /** Genera el srcset WebP responsivo a partir del JPG de origen. */
+  getWebpSrcset(image: string): string {
+    const base = image.replace(/\.(jpe?g|png)$/i, '');
+    return `${base}-480.webp 480w, ${base}-960.webp 960w`;
+  }
+
+  /** Comparte (o copia) el enlace directo a esta ficha de producto. */
+  async shareProduct(product: FeaturedProduct): Promise<void> {
+    const url = this.buildProductUrl(product);
+
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share({
+          title: `${product.name} | Corporación Araya`,
+          text: product.offer
+            ? `${product.name} — incluye kit de regalo corporativo.`
+            : product.name,
+          url
+        });
+        return;
+      } catch (error) {
+        // El usuario canceló el diálogo del sistema: no hacemos nada más.
+        if ((error as DOMException)?.name === 'AbortError') {
+          return;
+        }
+      }
+    }
+
+    if (await this.copyToClipboard(url)) {
+      this.copiedId = product.id;
+      this.showToast('Enlace copiado. Compártelo con tu cliente.');
+    } else {
+      this.showToast(url);
+    }
+  }
+
+  buildProductUrl(product: FeaturedProduct): string {
+    const base = window.location.href.split('#')[0];
+    return `${base}#${product.link}`;
+  }
+
+  private async copyToClipboard(text: string): Promise<boolean> {
+    if (navigator.clipboard?.writeText) {
+      try {
+        // Si el navegador pide permiso y no responde, no dejamos el botón colgado.
+        await Promise.race([
+          navigator.clipboard.writeText(text),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1200))
+        ]);
+        return true;
+      } catch {
+        // Sin permisos de portapapeles: probamos el método clásico.
+      }
+    }
+
+    try {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.top = '-1000px';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      const copied = document.execCommand('copy');
+      document.body.removeChild(area);
+      return copied;
+    } catch {
+      return false;
+    }
+  }
+
+  private showToast(message: string): void {
+    this.shareMessage = message;
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.toastTimer = setTimeout(() => {
+      this.shareMessage = '';
+      this.copiedId = null;
+    }, 3400);
+  }
+
+  private applyDeepLink(instant: boolean): void {
+    if (typeof window === 'undefined') return;
+
+    const product = this.linkedProduct();
+    if (!product) return;
+
+    // Quien abre el enlace compartido ve la ficha técnica completa de inmediato.
+    product.isExpanded = true;
+
+    setTimeout(() => {
+      this.alignToProduct(product, instant);
+
+      const element = document.getElementById(`producto-${product.id}`);
+      if (!element) return;
+      element.classList.add('is-linked');
+      if (this.highlightTimer) clearTimeout(this.highlightTimer);
+      this.highlightTimer = setTimeout(() => element.classList.remove('is-linked'), 4500);
+    }, 120);
+  }
+
+  /**
+   * Lleva el scroll a la ficha del producto y reajusta si el layout se mueve
+   * mientras cargan el hero 3D, las fuentes o las imágenes.
+   */
+  private alignToProduct(product: FeaturedProduct, instant: boolean): void {
+    const headerOffset = 86;
+    const delays = instant ? [0, 350, 800, 1500, 2400] : [0, 400, 900];
+
+    delays.forEach((delay, index) => {
+      setTimeout(() => {
+        if (this.linkedProduct()?.id !== product.id) return;
+
+        const element = document.getElementById(`producto-${product.id}`);
+        if (!element) return;
+
+        const offset = element.getBoundingClientRect().top - headerOffset;
+        if (Math.abs(offset) < 6) return;
+
+        const smooth = index === 0 && !instant;
+        window.scrollTo({
+          top: Math.max(0, window.scrollY + offset),
+          behavior: smooth ? 'smooth' : 'auto'
+        });
+      }, delay);
+    });
+  }
+
+  /** Resuelve el producto asociado al hash actual (#DellPro14Ultra). */
+  private linkedProduct(): FeaturedProduct | undefined {
+    const raw = window.location.hash.replace(/^#/, '');
+    if (!raw) return undefined;
+
+    const hash = decodeURIComponent(raw).toLowerCase();
+    const legacyId = hash.startsWith('producto-') ? hash.slice('producto-'.length) : '';
+
+    return this.products.find(
+      (item) =>
+        item.link.toLowerCase() === hash ||
+        item.id.toLowerCase() === hash ||
+        (!!legacyId && item.id.toLowerCase() === legacyId)
+    );
+  }
 
   toggleSpecs(product: FeaturedProduct): void {
     product.isExpanded = !product.isExpanded;

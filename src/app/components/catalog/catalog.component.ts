@@ -72,12 +72,20 @@ interface CategoryFilterTab {
 
               <!-- Product Image -->
               <div class="card-media">
-                <img
-                  [src]="product.image"
-                  [alt]="product.name"
-                  loading="lazy"
-                  class="product-thumb"
-                />
+                <picture>
+                  <source
+                    type="image/webp"
+                    [attr.srcset]="getWebpSrcset(product.image)"
+                    sizes="(min-width: 1200px) 290px, (min-width: 768px) 33vw, 92vw"
+                  />
+                  <img
+                    [src]="product.image"
+                    [alt]="product.name"
+                    loading="lazy"
+                    decoding="async"
+                    class="product-thumb"
+                  />
+                </picture>
               </div>
 
               <!-- Product Information -->
@@ -124,11 +132,19 @@ interface CategoryFilterTab {
             <div class="modal-body">
               <div class="modal-image-col">
                 <div class="modal-image-wrapper">
-                  <img
-                    [src]="selectedProduct.image"
-                    [alt]="selectedProduct.name"
-                    class="modal-image"
-                  />
+                  <picture>
+                    <source
+                      type="image/webp"
+                      [attr.srcset]="getWebpSrcset(selectedProduct.image)"
+                      sizes="(min-width: 992px) 460px, 92vw"
+                    />
+                    <img
+                      [src]="selectedProduct.image"
+                      [alt]="selectedProduct.name"
+                      decoding="async"
+                      class="modal-image"
+                    />
+                  </picture>
                 </div>
                 <div class="modal-stock-indicator">
                   <i class="fas fa-check-circle"></i>
@@ -413,6 +429,10 @@ interface CategoryFilterTab {
       justify-content: center;
       position: relative;
       border-bottom: 1px solid #F1F5F9;
+
+      picture {
+        display: contents;
+      }
     }
 
     .product-thumb {
@@ -601,6 +621,10 @@ interface CategoryFilterTab {
       gap: 1rem;
     }
 
+    .modal-image-wrapper picture {
+      display: contents;
+    }
+
     .modal-image-wrapper {
       border-radius: 14px;
       overflow: hidden;
@@ -773,6 +797,12 @@ interface CategoryFilterTab {
 export class CatalogComponent {
   activeCategory: CatalogCategory = 'todos';
   selectedProduct: CatalogProduct | null = null;
+
+  /** Genera el srcset WebP responsivo a partir del JPG de origen. */
+  getWebpSrcset(image: string): string {
+    const base = image.replace(/\.(jpe?g|png)$/i, '');
+    return `${base}-480.webp 480w, ${base}-960.webp 960w`;
+  }
 
   categoryTabs: CategoryFilterTab[] = [
     { id: 'todos', label: 'Todos', icon: 'fas fa-th-large' },
